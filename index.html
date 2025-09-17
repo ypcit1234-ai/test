@@ -110,7 +110,7 @@ tr:hover{background:#f8fafc;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbx3TLLfyx9u7iJkb1q4wk7G7HxJ89WjveP3GhbCGkuvYA-9bLF_He7Y8zzDDYDg52C0/exec"; // <-- เปลี่ยนเป็น URL ของคุณ
+const API_URL = "https://script.google.com/macros/s/AKfycbx3TLLfyx9u7iJkb1q4wk7G7HxJ89WjveP3GhbCGkuvYA-9bLF_He7Y8zzDDYDg52C0/exec" // เปลี่ยนเป็น URL ของคุณ
 
 function showPage(pageId){
     document.getElementById("dashboardPage").style.display = pageId==="dashboard"?"block":"none";
@@ -179,7 +179,7 @@ async function updateStatus(employeeID, newStatus) {
             body: JSON.stringify({ action: "update", employeeID: employeeID, status: newStatus })
         });
         const result = await res.json();
-        if(result.success) loadData();
+        if(result.status === "success") loadData();
     } catch(e){ console.error(e); }
 }
 
@@ -192,7 +192,7 @@ async function deleteRow(employeeID) {
             body: JSON.stringify({ action: "delete", employeeID: employeeID })
         });
         const result = await res.json();
-        if(result.success) loadData();
+        if(result.status === "success") loadData();
     } catch(e){ console.error(e); }
 }
 
