@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>แจ้งซ่อม IT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+    --primary-color: #2e59a7;
+    --secondary-color: #3b82f6;
+    --background-light: #f0f2f5;
+    --surface-color: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 5px 15px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:"Sarabun", sans-serif; background:var(--background-light); color:var(--text-dark); line-height:1.6; }
+.app-container { max-width: 700px; margin:auto; padding:1.5rem; }
+.header-section { text-align:center; margin-bottom:2rem; }
+.header-section .logo { width:80px; height:80px; border-radius:50%; box-shadow: var(--shadow-sm); margin-bottom:1rem; }
+.header-section h1 { font-size:2rem; color: var(--primary-color); margin-bottom:0.5rem; }
+.header-section p { color: var(--text-muted); font-size:1rem; }
+
+.form-card { background: var(--surface-color); padding:2rem; border-radius:20px; box-shadow: var(--shadow-lg); margin-bottom:2rem; }
+.form-card h2 { font-size:1.4rem; color: var(--primary-color); margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; }
+.form-group { margin-bottom:1.2rem; }
+.form-group label { display:block; font-weight:500; margin-bottom:0.4rem; font-size:0.95rem; }
+input, textarea { width:100%; padding:0.9rem; border:1px solid var(--border-color); border-radius:12px; font-size:1rem; background: var(--background-light); }
+textarea { resize: vertical; min-height:100px; }
+button[type="submit"] { width:100%; padding:1rem; background: var(--secondary-color); color:white; font-weight:bold; border:none; border-radius:12px; font-size:1.1rem; cursor:pointer; }
+
+.file-upload-wrapper { border:2px dashed var(--border-color); border-radius:12px; padding:1rem; text-align:center; cursor:pointer; background: var(--background-light); margin-bottom:0.5rem; }
+.file-upload-wrapper input[type="file"] { display:none; }
+.file-upload-wrapper i { font-size:2rem; color: var(--secondary-color); margin-bottom:0.5rem; }
+.file-name { font-size:0.85rem; color: var(--text-dark); display:block; }
+.image-preview-container { display:flex; flex-wrap: wrap; gap:1rem; margin-top:1rem; justify-content:center; }
+.image-preview { position:relative; width:100px; height:100px; border:1px solid var(--border-color); border-radius:12px; overflow:hidden; }
+.image-preview img { width:100%; height:100%; object-fit: cover; }
+.delete-image { position:absolute; top:5px; right:5px; background:red; color:white; border:none; border-radius:50%; width:24px; height:24px; cursor:pointer; }
+
+.loader-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.95); display:none; justify-content:center; align-items:center; z-index:9999; }
+.loader { border:6px solid #e5e7eb; border-top:6px solid var(--primary-color); border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; }
+
+.popup { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:10000; }
+.popup-content { background:white; padding:2rem; border-radius:20px; text-align:center; max-width:380px; }
+.popup-content i { font-size:2.5rem; color: #16a34a; margin-bottom:1rem; }
+.close-btn { margin-top:1rem; padding:0.8rem 2rem; background: var(--primary-color); color:white; border:none; border-radius:50px; cursor:pointer; }
+
+@keyframes spin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+/* Collapsible */
+.collapsible-header { cursor:pointer; padding:1rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; background:#f8f9fa; border-radius:12px; }
+.collapsible-header h2 { margin:0; font-size:1.1rem; }
+.collapsible-header i { transition: transform 0.3s ease; }
+.collapsible-header.active i { transform: rotate(180deg); }
+.collapsible-content { display:none; padding:1rem 0; overflow-x:auto; }
+.collapsible-content table { width:100%; border-collapse:collapse; font-size:0.9rem; min-width:500px; }
+.collapsible-content tr:nth-child(odd) { background:#f7f7f7; }
+.collapsible-content th, .collapsible-content td { padding:0.6rem 0.8rem; text-align:left; border-bottom:1px solid var(--border-color); }
+
+.status-badge { color:white; font-weight:bold; text-align:center; padding:3px 8px; border-radius:6px; display:inline-block; }
+/* ภาษาอังกฤษ */
+.status-badge.pending { background-color:#f59e0b; }
+.status-badge.in-progress { background-color:#3b82f6; }
+.status-badge.completed { background-color:#16a34a; }
+/* ภาษาไทย */
+.status-badge.รอดำเนินการ { background-color:#f59e0b; }
+.status-badge.กำลังดำเนินการ { background-color:#3b82f6; }
+.status-badge.เสร็จแล้ว { background-color:#16a34a; }
+.status-badge.default { background-color:#6b7280; }
+
+/* Responsive */
+@media(max-width:600px){ .form-card { padding:1.5rem; } .collapsible-content table { min-width:100%; } }
+</style>
+</head>
+<body>
+<div class="app-container">
+    <header class="header-section">
+        <img class="logo" src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Logo">
+        <h1>ระบบแจ้งซ่อม IT</h1>
+        <p>กรุณากรอกข้อมูลเพื่อแจ้งปัญหาที่พบ</p>
+    </header>
+
+    <section class="form-card">
+        <h2><i class="fas fa-tools"></i> กรอกรายละเอียดการแจ้งซ่อม</h2>
+        <form id="repairForm">
+            <div class="form-group"><label>ชื่อพนักงาน</label><input type="text" id="name" required></div>
+            <div class="form-group"><label>แผนก</label><input type="text" id="department" required></div>
+            <div class="form-group"><label>เบอร์โทร / Line ID</label><input type="text" id="contact" required></div>
+            <div class="form-group"><label>รายละเอียดปัญหา</label><textarea id="problem" required></textarea></div>
+            <div class="form-group">
+                <label>อัปโหลดรูปภาพ (ไม่บังคับ)</label>
+                <div class="file-upload-wrapper" id="fileUploadWrapper">
+                    <i class="fas fa-cloud-arrow-up"></i>
+                    <p>ลากและวางรูปภาพ หรือคลิกเพื่ออัปโหลด</p>
+                    <span class="file-name" id="fileName">ไม่มีไฟล์ถูกเลือก</span>
+                    <input type="file" id="issueImage" accept="image/*">
+                </div>
+                <div class="image-preview-container" id="imagePreviewContainer"></div>
+            </div>
+            <button type="submit">ส่งเรื่อง</button>
+        </form>
+    </section>
+
+    <section class="form-card">
+        <div class="collapsible-header" id="dashboardHeader">
+            <h2><i class="fas fa-list"></i> รายการแจ้งซ่อมก่อนหน้านี้</h2>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div id="repairsBoard" class="collapsible-content">
+            <p>⏳ กำลังโหลดข้อมูล...</p>
+        </div>
+    </section>
+</div>
+
+<div class="loader-overlay" id="loader"><div class="loader"></div></div>
+<div class="popup" id="popup">
+    <div class="popup-content">
+        <i class="fas fa-check-circle"></i>
+        <h3>ส่งข้อมูลเรียบร้อยแล้ว</h3>
+        <p>ทีม IT จะดำเนินการโดยเร็ว</p>
+        <button class="close-btn" onclick="closePopup()">ตกลง</button>
+    </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbw19j5rvmQctUEVrYOdMpZ58kIgiQXvKgvFOzJE-dDGI9tmZKP15swyPlOCWs7x_w0k/exec"; // เปลี่ยนเป็น API ของคุณ
+const fileUploadWrapper = document.getElementById('fileUploadWrapper');
+const issueImageInput = document.getElementById('issueImage');
+const fileNameSpan = document.getElementById('fileName');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const repairForm = document.getElementById("repairForm");
+const loader = document.getElementById("loader");
+const popup = document.getElementById("popup");
+const nameInput = document.getElementById("name");
+const departmentInput = document.getElementById("department");
+const contactInput = document.getElementById("contact");
+const problemInput = document.getElementById("problem");
+const dashboardHeader = document.getElementById("dashboardHeader");
+const repairsBoard = document.getElementById("repairsBoard");
+let selectedFile = null;
+
+// Upload
+fileUploadWrapper.addEventListener('click', () => issueImageInput.click());
+issueImageInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+function handleFile(file){
+    if (!file) return;
+    selectedFile = file;
+    fileNameSpan.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => {
+        imagePreviewContainer.innerHTML = `<div class="image-preview">
+            <img src="${e.target.result}">
+            <button type="button" class="delete-image" onclick="removeImage()">x</button>
+        </div>`;
+    };
+    reader.readAsDataURL(file);
+}
+function removeImage(){ selectedFile=null; fileNameSpan.textContent="ไม่มีไฟล์ถูกเลือก"; imagePreviewContainer.innerHTML=""; }
+
+// Submit Form
+repairForm.addEventListener("submit", async function(e) {
+    e.preventDefault(); loader.style.display="flex";
+    const formData = new FormData();
+    formData.append("name", nameInput.value.trim());
+    formData.append("department", departmentInput.value.trim());
+    formData.append("contact", contactInput.value.trim());
+    formData.append("problem", problemInput.value.trim());
+    formData.append("formType", "RepairRequest");
+    if (selectedFile) {
+        const reader = new FileReader();
+        await new Promise((res,rej)=>{
+            reader.onload=()=>{formData.append("imageUrl",reader.result);res();};
+            reader.onerror=rej;
+            reader.readAsDataURL(selectedFile);
+        });
+    } else { formData.append("imageUrl",""); }
+    try {
+        await fetch(API_URL,{ method:"POST", body:formData, mode:"no-cors" });
+        repairForm.reset(); removeImage(); loader.style.display="none"; popup.style.display="flex"; loadRepairs();
+    } catch(err){ loader.style.display="none"; alert("❌ ส่งข้อมูลไม่สำเร็จ"); }
+});
+function closePopup(){ popup.style.display="none"; }
+
+// Status Badge
+function getStatusClass(status){
+    status = status.toLowerCase();
+    switch(status){
+        case "pending": case "รอดำเนินการ": return "pending";
+        case "inprogress": case "กำลังดำเนินการ": return "in-progress";
+        case "completed": case "เสร็จแล้ว": return "completed";
+        default: return "default";
+    }
+}
+
+// Load Dashboard
+async function loadRepairs(){
+    try{
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        if(!Array.isArray(data) || data.length===0){ repairsBoard.innerHTML="<p>ไม่มีข้อมูล</p>"; return; }
+        let html="<table><tr style='background:#f3f4f6'><th>ชื่อ</th><th>แผนก</th><th>ปัญหา</th><th>สถานะ</th><th>วันที่</th></tr>";
+        data.forEach(r=>{
+            const statusClass = getStatusClass(r.status);
+            html+=`<tr>
+                <td>${r.name}</td>
+                <td>${r.department}</td>
+                <td>${r.problem||r.issue}</td>
+                <td><span class="status-badge ${statusClass}">${r.status}</span></td>
+                <td>${r.date||""}</td>
+            </tr>`;
+        });
+        html+="</table>"; repairsBoard.innerHTML=html;
+    }catch(err){ repairsBoard.innerHTML="<p style='color:red'>โหลดข้อมูลล้มเหลว</p>"; }
+}
+
+// Collapsible
+dashboardHeader.addEventListener("click", ()=>{
+    dashboardHeader.classList.toggle("active");
+    if(repairsBoard.style.display==="block"){ repairsBoard.style.display="none"; }
+    else{ repairsBoard.style.display="block"; loadRepairs(); }
+});
+
+// Initial load
+loadRepairs();
+</script>
+</body>
+</html>
